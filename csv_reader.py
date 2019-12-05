@@ -65,11 +65,21 @@ conn = create_connection()
 
 
 #Go through all CitiBike files in the csv_files folder, create a df for each, and append that df to the database
-basepath = '/home/ubuntu/cx4242'
-for file in os.listdir(basepath):
-    if os.path.isfile(os.path.join(basepath, file)) and file[-4:] == ".csv":
-        print(file)
-        df=pd.read_csv(basepath + "/" + file)
-        df.to_sql('citibike', con = conn, if_exists = 'append')
-
+# basepath = '/home/ubuntu/cx4242'
+# for file in os.listdir(basepath)[9:]:
+#     print(file)
+#     if os.path.isfile(os.path.join(basepath, file)) and file[-4:] == ".csv":
+#         print(file)
+#         try:
+#             df=pd.read_csv(basepath + "/" + file)
+#             df.to_sql('uber', con = conn, if_exists = 'append')
+#         except Exception:
+#             continue
+print("started reading file")
+df = pd.read_csv("/home/ubuntu/citibike_data/201904-citibike-tripdata.csv")
+df = df.sample(frac=1)
+df.starttime = pd.to_datetime(df.starttime)
+df.stoptime = pd.to_datetime(df.stoptime)
+print("starting sql stuff", df.shape)
+df.to_sql('citibike', con = conn, if_exists = 'append', chunksize=1000)
 conn.close()
